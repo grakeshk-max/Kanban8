@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "doctype-html": "error",
+    "no-dup-id": "error",
+    "close-order": "error",
+    "unrecognized-char-ref": "error",
+    "element-required-attributes": "error"
+  }
+}

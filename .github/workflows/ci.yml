@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Secret scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: HTML validation
+        run: |
+          npx --yes html-validate@9 index.html
+
+      - name: Project constraints
+        run: |
+          files="index.html .claude/hooks/*.js"
+          if grep -nE 'localStorage|sessionStorage|indexedDB' $files; then
+            echo "::error::Persistence APIs are not allowed"; exit 1
+          fi
+          if grep -n '!important' $files; then
+            echo "::error::!important is not allowed"; exit 1
+          fi
