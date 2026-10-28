@@ -63,7 +63,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .demo-note { color: var(--muted); font-size: 13px; text-align: right; }
 
 /* ===== Buttons and controls ===== */
-.btn { height: var(--control-height); padding: 0 16px; border-radius: var(--radius-control); border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 500; cursor: pointer; }
+.btn { height: var(--control-height); padding: 0 16px; border-radius: var(--radius-control); border: 1px solid var(--accent); background: linear-gradient(180deg, #fcff8a, var(--accent)); color: var(--accent-ink); font-weight: 500; cursor: pointer; }
 .btn:hover { box-shadow: var(--glow-lemon); }
 .btn:disabled { opacity: 0.55; cursor: wait; }
 .btn-secondary { background: var(--raised); color: var(--text); border-color: var(--control); }
@@ -149,7 +149,7 @@ select { cursor: pointer; accent-color: var(--data); }
 .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .card-id { font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .card-title { margin: 4px 0 2px; font-size: 14px; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
-.card-project { margin: 0 0 10px; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.card-project { margin: 0 0 6px; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
 .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .pill, .tag, .overdue { font-size: 13px; line-height: 20px; height: 20px; padding: 0 8px; border-radius: 999px; font-weight: 500; white-space: nowrap; flex: none; }
 .pill-critical { background: var(--pill-crit-bg); color: var(--pill-crit-ink); }
@@ -199,6 +199,39 @@ form { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px v
 .toast { padding: 10px 14px; border-radius: var(--radius-control); background: var(--accent); color: var(--accent-ink); font-weight: 500; box-shadow: var(--glow-lemon); }
 .toast.warn { background: var(--high); color: #1d1300; }
 
+/* ===== Premium polish and insight panels ===== */
+.topbar::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--data), var(--lemon), var(--data), transparent); opacity: 0.75; }
+.card { transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s; }
+.card:hover { transform: translateY(-2px); }
+.card-desc { margin: 0 0 10px; font-size: 13px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.plain { list-style: none; margin: 0; padding: 0; }
+.insights { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: var(--gap); margin-top: var(--gap); align-items: stretch; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px 20px; min-width: 0; }
+.panel h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.panel-sub { margin: 2px 0 10px; font-size: 13px; color: var(--muted); }
+.hrow { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 9px 0; border-top: 1px solid var(--rule); }
+.hrow:first-child { border-top: none; }
+.hname { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hpct { font-size: 14px; text-align: right; }
+.hmeta { grid-column: 1 / -1; display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.late { color: var(--negative); }
+.mini { grid-column: 1 / -1; height: 6px; border-radius: 999px; background: var(--raised); overflow: hidden; }
+.mini span { display: block; height: 100%; border-radius: 999px; background: var(--data); box-shadow: var(--glow-purple); }
+.lrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--rule); min-width: 0; }
+.lrow:first-child { border-top: none; }
+.lmain { min-width: 0; }
+.ltitle { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lsub { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.act-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--data); box-shadow: 0 0 8px var(--data); flex: none; }
+.act-text { flex: 1; min-width: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.act-time { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.board-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--gap); padding: 4px 0 12px; }
+.board-head h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.results { font-size: 13px; color: var(--muted); }
+.foot { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-top: 28px; padding-bottom: 12px; font-size: 13px; color: var(--muted); }
+.foot-name { color: var(--lemon); font-weight: 700; }
+@media (max-width: 1023px) { .insights { grid-template-columns: 1fr; } }
+
 /* ===== Phone ===== */
 @media (max-width: 1023px) {
   .kpis { grid-template-columns: repeat(3, 1fr); }
@@ -247,6 +280,24 @@ form { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px v
     <div class="progress" id="progress"></div>
   </section>
 
+  <section class="insights" aria-label="Portfolio insights">
+    <article class="panel" aria-labelledby="h-health">
+      <h2 id="h-health">Workstream health</h2>
+      <p class="panel-sub">Share of tasks closed, by workstream</p>
+      <ul class="plain" id="health"></ul>
+    </article>
+    <article class="panel" aria-labelledby="h-due">
+      <h2 id="h-due">Due next</h2>
+      <p class="panel-sub">Open tasks, earliest due date first</p>
+      <ul class="plain" id="due-next"></ul>
+    </article>
+    <article class="panel" aria-labelledby="h-act">
+      <h2 id="h-act">Activity</h2>
+      <p class="panel-sub">Latest changes on this board</p>
+      <ul class="plain" id="activity"></ul>
+    </article>
+  </section>
+
   <section class="filters" aria-label="Board filters">
     <label for="f-project">Project
       <select id="f-project"></select>
@@ -260,8 +311,17 @@ form { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px v
     <button class="btn btn-secondary" type="button" id="clear-filters">Clear filters</button>
   </section>
 
+  <div class="board-head">
+    <h2>Board</h2>
+    <span class="results num" id="results"></span>
+  </div>
   <section class="board" id="board" aria-label="Kanban board"></section>
 </main>
+
+<footer class="wrap foot">
+  <span class="foot-name">IT PMO</span>
+  <span>Internal demo and training tool for a fictitious bank. All names, tasks and figures are sample data.</span>
+</footer>
 
 <dialog id="add-dialog" aria-labelledby="add-title">
   <div class="modal-head">
@@ -387,6 +447,7 @@ const state = {
   filters: { project: "", assignee: "", priority: "" },
   confirmingId: null,   // task id showing inline "Delete? Yes / No"
   draggingId: null,
+  activity: [],          // newest first: { text, at }
   nextId: 1
 };
 
@@ -405,7 +466,15 @@ function seedTasks() {
     ["Customer data lake retention policy", "Define and document retention rules for the analytics data lake.", "Data & Analytics", "Compliance", "Sarah Lim", "Medium", 21, "Backlog"],
     ["Renew SWIFT connectivity vendor contract", "Negotiate and renew the managed connectivity agreement.", "Vendor Management", "Vendor", "Hassan Ali", "Low", -7, "Blocked"],
     ["Quarterly DR failover test", "Execute disaster recovery failover for tier-1 applications.", "Infrastructure & Cloud", "Infrastructure", "Grace Ong", "High", -14, "Done"],
-    ["Build executive KPI dashboard v1", "Deliver first release of PMO portfolio dashboard.", "Data & Analytics", "Data", "Kevin Chua", "Low", 9, "Done"]
+    ["Build executive KPI dashboard v1", "Deliver first release of PMO portfolio dashboard.", "Data & Analytics", "Data", "Kevin Chua", "Low", 9, "Done"],
+    ["Rotate privileged service account credentials", "Rotate and vault credentials for all tier-1 service accounts.", "Cybersecurity Uplift", "Cybersecurity", "Rachel Goh", "Critical", 2, "In Progress"],
+    ["Retire legacy ATM switch interface", "Decommission the old ISO 8583 interface after parallel run.", "Core Banking Upgrade", "Application Development", "Vikram Rao", "High", 45, "Backlog"],
+    ["Onboard cloud cost-management vendor", "Complete due diligence and contract for the FinOps tooling vendor.", "Vendor Management", "Vendor", "Hassan Ali", "Medium", 18, "Backlog"],
+    ["Pen test remediation for internet banking", "Fix the high findings from the latest external penetration test.", "Cybersecurity Uplift", "Cybersecurity", "Daniel Tan", "High", -1, "Blocked"],
+    ["Regulatory reporting data lineage", "Document end-to-end lineage for the quarterly regulatory returns.", "Data & Analytics", "Compliance", "Sarah Lim", "High", 14, "In Progress"],
+    ["Move branch Wi-Fi to zero-trust access", "Replace shared-key Wi-Fi with certificate-based access in 40 branches.", "Infrastructure & Cloud", "Infrastructure", "Grace Ong", "Medium", 25, "Backlog"],
+    ["Mobile app 4.2 accessibility audit", "Audit the onboarding journey against WCAG 2.2 AA.", "Digital Channels", "Application Development", "Mei Ling Wong", "Medium", 8, "In Progress"],
+    ["Close out core banking DR runbook", "Final review and sign-off of the disaster recovery runbook.", "Core Banking Upgrade", "Compliance", "Arjun Mehta", "Low", -5, "Done"]
   ];
   seed.forEach(function (s) {
     state.tasks.push({
@@ -469,6 +538,7 @@ function renderCard(task) {
     '<button type="button" class="icon-btn" data-action="delete-ask" data-id="' + escapeHtml(task.id) + '" aria-label="Delete task ' + escapeHtml(task.id) + '">&times;</button></div>' +
     '<h3 class="card-title">' + escapeHtml(task.title) + "</h3>" +
     '<p class="card-project">' + escapeHtml(task.project) + "</p>" +
+    (task.description ? '<p class="card-desc">' + escapeHtml(task.description) + "</p>" : "") +
     '<div class="badges"><span class="pill pill-' + slug(task.priority) + '">' + escapeHtml(task.priority) + "</span>" +
     '<span class="tag">' + escapeHtml(task.category) + "</span>" +
     (isOverdue(task) ? '<span class="overdue">Overdue</span>' : "") + "</div>" +
@@ -516,6 +586,56 @@ function renderSummary() {
     '<div class="led" role="img" aria-label="Tasks by status: ' + STATUSES.map(function (s) { return counts[s] + " " + s; }).join(", ") + '">' + (segs || '<span class="seg seg-empty" style="flex-grow:1"></span>') + "</div>" +
     '<ul class="legend">' + legend + "</ul>";
 }
+function logActivity(text) {
+  state.activity.unshift({ text: text, at: Date.now() });
+  if (state.activity.length > 20) state.activity.length = 20;
+}
+function seedActivity() {
+  [["Moved UOB-ITPM-0003 to Blocked", 25], ["Added UOB-ITPM-0012: Pen test remediation for internet banking", 70],
+   ["Moved UOB-ITPM-0007 to Done", 190], ["Moved UOB-ITPM-0001 to In Progress", 1500], ["Added UOB-ITPM-0009: Rotate privileged service account credentials", 2900],
+   ["Moved UOB-ITPM-0015 to In Progress", 4300], ["Added UOB-ITPM-0013: Regulatory reporting data lineage", 5800], ["Moved UOB-ITPM-0016 to Done", 7200],
+   ["Added UOB-ITPM-0014: Move branch Wi-Fi to zero-trust access", 8600], ["Moved UOB-ITPM-0006 to Blocked", 10000], ["Added UOB-ITPM-0011: Onboard cloud cost-management vendor", 11500]]
+    .forEach(function (e) { state.activity.push({ text: e[0], at: Date.now() - e[1] * 60000 }); });
+}
+function relTime(ms) {
+  const m = Math.floor((Date.now() - ms) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return m + "m ago";
+  if (m < 1440) return Math.floor(m / 60) + "h ago";
+  return Math.floor(m / 1440) + "d ago";
+}
+
+// Insight panels: all computed from state.tasks and state.activity (unfiltered).
+function renderInsights() {
+  document.getElementById("health").innerHTML = PROJECTS.map(function (proj) {
+    const rows = state.tasks.filter(function (t) { return t.project === proj; });
+    const done = rows.filter(function (t) { return t.status === "Done"; }).length;
+    const late = rows.filter(isOverdue).length;
+    const open = rows.length - done;
+    const pct = rows.length ? (done / rows.length) * 100 : 0;
+    return '<li class="hrow"><span class="hname">' + escapeHtml(proj) + '</span><span class="hpct num">' + (rows.length ? pct.toFixed(0) + "%" : "–") + "</span>" +
+      '<span class="hmeta"><span>' + plural(open, "open task") + "</span>" + (late ? '<span class="late">' + late + " overdue</span>" : "<span>none overdue</span>") + "</span>" +
+      '<span class="mini" role="img" aria-label="' + done + " of " + rows.length + ' closed"><span style="width:' + pct.toFixed(1) + '%"></span></span></li>';
+  }).join("");
+
+  const next = state.tasks.filter(function (t) { return t.status !== "Done"; })
+    .sort(function (a, b) { return a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : 0; }).slice(0, 7);
+  document.getElementById("due-next").innerHTML = next.length ? next.map(function (t) {
+    return '<li class="lrow"><div class="lmain"><div class="ltitle">' + escapeHtml(t.title) + '</div><div class="lsub">' + escapeHtml(t.assignee) + " · " + escapeHtml(t.priority) + "</div></div>" +
+      '<div class="due' + (isOverdue(t) ? " is-late" : "") + '">' + escapeHtml(dueText(t)) + "</div></li>";
+  }).join("") : '<li class="lsub">No open tasks.</li>';
+
+  document.getElementById("activity").innerHTML = state.activity.slice(0, 11).map(function (a) {
+    return '<li class="lrow"><span class="act-dot" aria-hidden="true"></span><span class="act-text">' + escapeHtml(a.text) + '</span><span class="act-time">' + relTime(a.at) + "</span></li>";
+  }).join("");
+}
+
+function renderResults(visible) {
+  document.getElementById("results").textContent = visible.length === state.tasks.length
+    ? plural(state.tasks.length, "task")
+    : "Showing " + visible.length + " of " + plural(state.tasks.length, "task");
+}
+
 function renderBoard() {
   const visible = applyFilters(state.tasks);
   const focusId = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.id : null;
@@ -527,6 +647,8 @@ function renderBoard() {
       '<div class="cards">' + (cards.length ? cards.map(renderCard).join("") : '<div class="empty">No tasks here.</div>') + "</div></section>";
   }).join("");
   renderSummary();
+  renderInsights();
+  renderResults(visible);
   // Restore keyboard focus after a re-render
   if (focusId && focusAction) {
     const el = document.querySelector('[data-action="' + focusAction + '"][data-id="' + focusId + '"]');
@@ -538,6 +660,7 @@ function renderBoard() {
 function addTask(data) {
   const task = Object.assign({ id: nextTaskId() }, data);
   state.tasks.push(task);
+  logActivity("Added " + task.id + ": " + task.title);
   renderBoard();
   return task;
 }
@@ -545,9 +668,11 @@ function moveTask(id, status) {
   const task = state.tasks.find(function (t) { return t.id === id; });
   if (!task || STATUSES.indexOf(status) === -1 || task.status === status) return;
   task.status = status;
+  logActivity("Moved " + task.id + " to " + status);
   renderBoard();
 }
 function deleteTask(id) {
+  logActivity("Deleted " + id);
   state.tasks = state.tasks.filter(function (t) { return t.id !== id; });
   state.confirmingId = null;
   renderBoard();
@@ -770,6 +895,7 @@ function init() {
     document.getElementById("wa-widget").hidden = true;
   }
   seedTasks();
+  seedActivity();
   wireEvents();
   renderBoard();
 }
