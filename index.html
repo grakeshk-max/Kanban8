@@ -3,227 +3,275 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>IT PMO Kanban</title>
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="no-referrer">
+<!-- Security: no remote scripts, styles, fonts or images; the only network call allowed is the FormSubmit endpoint. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src https://formsubmit.co; form-action 'none'; base-uri 'none'">
+<title>IT PMO Board</title>
 <style>
-/* Layout concept: dark navy command bar over a calm, blue-grey board; status colour lives on column rules, priority colour on the card edge. */
+/* Layout: no-sidebar shell. 48px top bar over a centred 1208px column; every block shares that column's edges.
+   Grid arithmetic: content 1208 - 2 x 24 gutter = 1160 = 4 x 281 + 3 x 12 (columns); 6 x 193.33 KPI cells = 1160. */
 :root {
-  --bg: #edf1f7;
-  --surface: #ffffff;
-  --surface-2: #e2e9f3;
-  --ink: #14202e;
-  --ink-2: #566579;
-  --line: #d0d9e5;
-  --brand: #164f8f;
-  --brand-hover: #0f3d72;
-  --brand-ink: #ffffff;
-  --head-bg: #0c2340;
-  --head-ink: #f2f6fb;
-  --head-mute: #9db4d0;
-  --focus: #e08a00;
+  /* Neon theme: ink-violet ground, neon purple for data and focus, lemon for the primary action and highlights. */
+  --ground: #0b0615;
+  --surface: #150d27;
+  --raised: #1f1438;
+  --border: #32224f;
+  --rule: #271a42;
+  --control: #4a3578;
+  --text: #f4efff;
+  --muted: #a99cc9;
+  --accent: #f5ff3d;
+  --accent-ink: #14091f;
+  --data: #b24dff;
+  --lemon: #f5ff3d;
+  --glow-purple: 0 0 14px rgba(178, 77, 255, 0.55);
+  --glow-lemon: 0 0 14px rgba(245, 255, 61, 0.45);
+  --negative: #ff5c8a;
+  --focus: #f5ff3d;
 
-  --st-backlog: #71829a;
-  --st-progress: #1a65b3;
-  --st-blocked: #c62828;
-  --st-done: #2e7d32;
+  --crit: #ff4d6d; --high: #ffb02e; --med: #b24dff; --low: #7d7399;
+  --pill-crit-bg: #3a1020; --pill-crit-ink: #ff9db3;
+  --pill-high-bg: #3a2a0a; --pill-high-ink: #ffd28a;
+  --pill-med-bg: #2a1450; --pill-med-ink: #dcb8ff;
+  --pill-low-bg: #231a3a; --pill-low-ink: #c4badf;
+  --st-backlog: #a99cc9; --st-progress: #b24dff; --st-blocked: #ff5c8a; --st-done: #b7ff3a;
 
-  --crit: #c62828; --crit-bg: #fdeaea; --crit-ink: #9b1c1c;
-  --high: #e08a00; --high-bg: #fff1d6; --high-ink: #7a4a00;
-  --med: #1a65b3;  --med-bg: #e1edfa;  --med-ink: #134c88;
-  --low: #6b7a8f;  --low-bg: #e8ecf2;  --low-ink: #46546a;
-
-  --sp-1: 4px;
-  --sp-2: 8px;
-  --sp-3: 12px;
-  --sp-4: 16px;
-  --sp-5: 24px;
-  --radius: 8px;
-  --shadow: 0 1px 2px rgba(12,35,64,0.10), 0 1px 1px rgba(12,35,64,0.06);
-  --shadow-lift: 0 6px 16px rgba(12,35,64,0.16);
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --gap: 12px;
+  --pad: 24px;
+  --control-height: 36px;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0a1420;
-    --surface: #14233a;
-    --surface-2: #0e1b2d;
-    --ink: #e6edf7;
-    --ink-2: #9db0c8;
-    --line: #25384f;
-    --brand: #4d93e0;
-    --brand-hover: #6aa6ec;
-    --brand-ink: #06121f;
-    --head-bg: #060e19;
-    --st-backlog: #8a9bb2;
-    --st-progress: #4d93e0;
-    --st-blocked: #ef6a6a;
-    --st-done: #5cb860;
-    --crit: #ef6a6a; --crit-bg: #3a1a1f; --crit-ink: #ffb3b3;
-    --high: #f0a030; --high-bg: #3a2c12; --high-ink: #ffd28a;
-    --med: #4d93e0;  --med-bg: #14304f;  --med-ink: #a9cdf5;
-    --low: #8a9bb2;  --low-bg: #1e2d42;  --low-ink: #b8c6d8;
-    --shadow: 0 1px 2px rgba(0,0,0,0.5);
-    --shadow-lift: 0 6px 16px rgba(0,0,0,0.55);
-    color-scheme: dark;
-  }
-}
-
-/* ===== Base ===== */
 * { box-sizing: border-box; }
-body { margin: 0; font-family: var(--font); color: var(--ink); background: var(--bg); font-size: 14px; line-height: 1.45; }
+html { scroll-padding-top: 64px; }
+body { margin: 0; background: var(--ground) radial-gradient(900px 380px at 50% -120px, rgba(178, 77, 255, 0.28), transparent 70%) no-repeat; color: var(--text); font: 14px/1.45 var(--font); padding-bottom: 88px; }
 button, input, select, textarea { font: inherit; color: inherit; }
-:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-h1, h2, h3 { text-wrap: balance; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1208px; margin: 0 auto; padding: 0 var(--pad); }
 
-/* ===== Header ===== */
-.app-header { background: var(--head-bg); color: var(--head-ink); padding: var(--sp-4) var(--sp-5); display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-5); align-items: center; justify-content: space-between; }
-.wordmark { font-size: 21px; font-weight: 800; letter-spacing: 0.04em; display: flex; align-items: center; gap: var(--sp-3); }
-.wordmark svg { width: 26px; height: 26px; }
-.wordmark small { font-weight: 500; letter-spacing: 0; color: var(--head-mute); font-size: 12px; padding-left: var(--sp-3); border-left: 1px solid rgba(255,255,255,0.2); }
-.summary { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
-.summary li { padding: 0 var(--sp-4); text-align: left; border-left: 1px solid rgba(255,255,255,0.14); }
-.summary li:first-child { border-left: none; }
-.summary strong { display: block; font-size: 22px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.summary span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--head-mute); }
-.summary .is-overdue strong { color: #ff9a9a; }
+/* ===== Top bar ===== */
+.topbar { height: 48px; display: flex; align-items: center; position: sticky; top: 0; z-index: 5; background: var(--ground); border-bottom: 1px solid var(--border); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--gap); width: 100%; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; }
+.brand svg { width: 22px; height: 22px; display: block; color: var(--lemon); filter: drop-shadow(0 0 5px rgba(245, 255, 61, 0.6)); }
+.scope { color: var(--muted); font-weight: 400; padding-left: 10px; border-left: 1px solid var(--control); }
+.demo-note { color: var(--muted); font-size: 13px; text-align: right; }
 
-.btn { border: 1px solid var(--brand); background: var(--brand); color: var(--brand-ink); border-radius: var(--radius); padding: var(--sp-2) var(--sp-4); cursor: pointer; font-weight: 600; transition: background 0.15s; }
-.btn:hover { background: var(--brand-hover); }
-.btn:disabled { opacity: 0.6; cursor: wait; }
-.btn-secondary { background: var(--surface); color: var(--brand); border-color: var(--line); }
-.btn-secondary:hover { background: var(--surface-2); }
-.app-header .btn { background: #ffffff; color: var(--head-bg); border-color: #ffffff; }
-.app-header .btn:hover { background: #dce8f7; }
+/* ===== Buttons and controls ===== */
+.btn { height: var(--control-height); padding: 0 16px; border-radius: var(--radius-control); border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 500; cursor: pointer; }
+.btn:hover { box-shadow: var(--glow-lemon); }
+.btn:disabled { opacity: 0.55; cursor: wait; }
+.btn-secondary { background: var(--raised); color: var(--text); border-color: var(--control); }
+.btn-secondary:hover { background: var(--border); box-shadow: var(--glow-purple); }
+input, select, textarea { height: var(--control-height); padding: 0 10px; border: 1px solid var(--control); border-radius: var(--radius-control); background: var(--surface); }
+textarea { height: auto; padding: 8px 10px; resize: vertical; }
 
-/* ===== Filter bar ===== */
-.filters { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: flex-end; padding: var(--sp-3) var(--sp-5); background: var(--surface); border-bottom: 1px solid var(--line); }
-.filters label { display: flex; flex-direction: column; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); gap: var(--sp-1); }
-.filters input, .filters select { min-width: 180px; text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 14px; color: var(--ink); }
-.note { margin: 0 0 0 auto; font-size: 12px; color: var(--ink-2); max-width: 300px; }
+/* ===== Title row ===== */
+.title-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--gap); padding: 28px 0 20px; }
+h1 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 700; text-shadow: 0 0 18px rgba(178, 77, 255, 0.7); }
+.finding { margin: 6px 0 0; font-size: 15px; color: var(--muted); max-width: 70ch; }
+.finding strong { color: var(--lemon); font-weight: 500; }
 
-input, select, textarea { border: 1px solid var(--line); border-radius: 6px; padding: var(--sp-2); background: var(--surface); }
+/* ===== KPI strip (one container, hairline dividers) ===== */
+.kpis { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); }
+.kpis li { padding: 16px var(--pad); border-left: 1px solid var(--rule); }
+.kpis li:first-child { border-left: none; }
+.kpi-label { display: block; font-size: 13px; color: var(--muted); }
+.kpi-value { display: block; margin-top: 2px; font-size: 30px; line-height: 1.15; font-weight: 400; font-variant-numeric: tabular-nums; }
+.kpi-value.is-bad { color: var(--negative); text-shadow: 0 0 12px rgba(255, 92, 138, 0.55); }
+.kpi-value.is-zero { color: var(--muted); }
+
+.progress { margin: var(--gap) 0 0; padding: 14px var(--pad); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); }
+.progress-head { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.progress-head strong { color: var(--text); font-weight: 500; }
+.led { display: flex; gap: 4px; height: 16px; }
+.seg { position: relative; border-radius: 3px; min-width: 14px; background: var(--c); box-shadow: 0 0 10px var(--c); overflow: hidden; }
+.seg::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 8px, rgba(11, 6, 21, 0.75) 8px 10px); }
+.seg-backlog { --c: var(--st-backlog); }
+.seg-in-progress { --c: var(--st-progress); }
+.seg-blocked { --c: var(--st-blocked); }
+.seg-done { --c: var(--st-done); }
+.seg-empty { --c: var(--raised); box-shadow: none; }
+.legend { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.legend .num { color: var(--text); }
+.key { width: 10px; height: 10px; border-radius: 2px; background: var(--c); box-shadow: 0 0 6px var(--c); }
+.key-backlog { --c: var(--st-backlog); }
+.key-in-progress { --c: var(--st-progress); }
+.key-blocked { --c: var(--st-blocked); }
+.key-done { --c: var(--st-done); }
+
+/* Neon scrollbars */
+html { scrollbar-color: var(--data) var(--ground); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--ground); border-left: 1px solid var(--border); }
+::-webkit-scrollbar-thumb { background: var(--data); border-radius: 999px; border: 3px solid var(--ground); box-shadow: 0 0 8px var(--data); }
+::-webkit-scrollbar-thumb:hover { background: var(--lemon); }
+
+/* Glowing controls */
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--data); box-shadow: 0 0 0 1px var(--data), var(--glow-purple); }
+input::placeholder { color: var(--muted); opacity: 0.7; }
+select { cursor: pointer; accent-color: var(--data); }
+::selection { background: var(--data); color: #0b0615; }
+
+/* ===== Filters ===== */
+.filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--gap); padding: 20px 0 14px; }
+.filters label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.filters input, .filters select { min-width: 190px; color: var(--text); font-size: 14px; }
 
 /* ===== Board ===== */
-.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--sp-4); padding: var(--sp-5); align-items: start; }
-.column { --status: var(--st-backlog); min-width: 0; background: var(--surface-2); border: 2px solid transparent; border-top: 4px solid var(--status); border-radius: var(--radius); padding: var(--sp-3); min-height: 240px; transition: background 0.15s, border-color 0.15s; }
+.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--gap); align-items: start; }
+.column { --status: var(--st-backlog); min-width: 0; padding: 8px; border-radius: var(--radius-card); transition: background 0.12s; }
 .column[data-status="In Progress"] { --status: var(--st-progress); }
 .column[data-status="Blocked"] { --status: var(--st-blocked); }
 .column[data-status="Done"] { --status: var(--st-done); }
-.column.drop-target { border-color: var(--status); background: var(--surface); }
-.column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-3); }
-.column-header h2 { margin: 0; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink); }
-.count { background: var(--status); color: var(--surface); border-radius: 999px; min-width: 24px; text-align: center; padding: 1px var(--sp-2); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.cards { display: flex; flex-direction: column; gap: var(--sp-3); min-height: 60px; }
-.empty { color: var(--ink-2); font-size: 12px; text-align: center; padding: var(--sp-5) 0; border: 1px dashed var(--line); border-radius: var(--radius); }
+.column.drop-target { background: var(--raised); box-shadow: inset 0 0 0 1px var(--data), var(--glow-purple); }
+.column-header { display: flex; align-items: center; gap: 8px; padding: 2px 2px 10px; }
+.column-header h2 { margin: 0; font-size: 14px; font-weight: 500; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--status); flex: none; box-shadow: 0 0 8px var(--status); }
+.count { margin-left: auto; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.cards { display: flex; flex-direction: column; gap: var(--gap); min-height: 96px; }
+.empty { color: var(--muted); font-size: 13px; padding: 20px 4px; }
 
 /* ===== Cards ===== */
-.card { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--low); border-radius: var(--radius); padding: var(--sp-3); box-shadow: var(--shadow); cursor: grab; transition: box-shadow 0.15s, transform 0.15s; }
-.card:hover { box-shadow: var(--shadow-lift); transform: translateY(-1px); }
+.card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--low); border-radius: var(--radius-card); padding: 12px 14px; cursor: grab; }
+.card:hover { border-color: var(--data); box-shadow: var(--glow-purple); }
 .card.dragging { opacity: 0.4; }
 .card.prio-critical { border-left-color: var(--crit); }
 .card.prio-high { border-left-color: var(--high); }
 .card.prio-medium { border-left-color: var(--med); }
 .card.prio-low { border-left-color: var(--low); }
-.card-top { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-2); }
-.card-id { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--ink-2); letter-spacing: 0.02em; }
-.card-title { margin: var(--sp-1) 0 var(--sp-2); font-size: 14px; font-weight: 650; line-height: 1.35; word-break: break-word; }
-.card-meta { display: grid; grid-template-columns: 54px 1fr; gap: 2px var(--sp-2); margin: 0 0 var(--sp-2); font-size: 12px; }
-.card-meta dt { color: var(--ink-2); text-transform: uppercase; font-size: 10px; letter-spacing: 0.08em; padding-top: 2px; }
-.card-meta dd { margin: 0; word-break: break-word; font-variant-numeric: tabular-nums; }
-.badges { display: flex; flex-wrap: wrap; gap: var(--sp-1); margin: var(--sp-2) 0; }
-.pill, .tag, .overdue { font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px var(--sp-2); border: 1px solid transparent; }
-.pill-critical { background: var(--crit-bg); color: var(--crit-ink); border-color: var(--crit); }
-.pill-high { background: var(--high-bg); color: var(--high-ink); border-color: var(--high); }
-.pill-medium { background: var(--med-bg); color: var(--med-ink); border-color: var(--med); }
-.pill-low { background: var(--low-bg); color: var(--low-ink); border-color: var(--low); }
-.tag { background: transparent; color: var(--ink-2); border-color: var(--line); font-weight: 600; }
-.overdue { background: var(--crit-bg); color: var(--crit-ink); border-color: var(--crit); }
-.card-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); margin-top: var(--sp-2); padding-top: var(--sp-2); border-top: 1px solid var(--line); }
-.card-actions select { font-size: 12px; padding: 3px var(--sp-2); max-width: 130px; cursor: pointer; }
-.icon-btn { border: 1px solid transparent; background: transparent; color: var(--ink-2); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 var(--sp-2); border-radius: 6px; }
-.icon-btn:hover { color: var(--crit); background: var(--crit-bg); }
-.confirm { display: flex; align-items: center; gap: var(--sp-2); font-size: 12px; color: var(--crit); font-weight: 700; }
-.confirm button { font-size: 12px; padding: 2px var(--sp-3); border-radius: 6px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
-.confirm button[data-action="delete-yes"] { background: var(--crit); color: #ffffff; border-color: var(--crit); }
+.card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.card-id { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.card-title { margin: 4px 0 2px; font-size: 14px; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+.card-project { margin: 0 0 10px; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.pill, .tag, .overdue { font-size: 13px; line-height: 20px; height: 20px; padding: 0 8px; border-radius: 999px; font-weight: 500; white-space: nowrap; flex: none; }
+.pill-critical { background: var(--pill-crit-bg); color: var(--pill-crit-ink); }
+.pill-high { background: var(--pill-high-bg); color: var(--pill-high-ink); }
+.pill-medium { background: var(--pill-med-bg); color: var(--pill-med-ink); }
+.pill-low { background: var(--pill-low-bg); color: var(--pill-low-ink); }
+.tag { background: transparent; color: var(--muted); border: 1px solid var(--border); line-height: 18px; }
+.overdue { background: var(--pill-crit-bg); color: var(--pill-crit-ink); }
+.card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.person { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 13px; }
+.person span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avatar { --h: 210; width: 24px; height: 24px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 10px; font-weight: 500; background: hsl(var(--h) 45% 20%); color: hsl(var(--h) 90% 82%); }
 
-/* ===== Modal / form ===== */
-dialog { border: none; border-radius: 12px; padding: 0; width: min(580px, 94vw); background: var(--surface); color: var(--ink); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
-dialog::backdrop { background: rgba(8,20,36,0.62); }
-.modal-head { background: var(--head-bg); color: var(--head-ink); padding: var(--sp-3) var(--sp-4); display: flex; justify-content: space-between; align-items: center; }
+.due { text-align: right; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.due.is-late { color: var(--negative); }
+.visually-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.card-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); }
+.card-actions select { height: 28px; font-size: 13px; padding: 0 6px; max-width: 130px; cursor: pointer; }
+.icon-btn { width: 28px; height: 28px; border: 1px solid transparent; border-radius: var(--radius-control); background: transparent; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+.icon-btn:hover { background: var(--raised); color: var(--text); }
+.confirm { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+.confirm button { height: 28px; padding: 0 12px; border-radius: var(--radius-control); border: 1px solid var(--control); background: var(--surface); cursor: pointer; font-size: 13px; }
+.confirm button[data-action="delete-yes"] { background: var(--negative); border-color: var(--negative); color: #14091f; }
+
+/* ===== Dialog and form ===== */
+dialog { border: 1px solid var(--data); box-shadow: var(--glow-purple); border-radius: 12px; padding: 0; width: min(600px, 94vw); background: var(--surface); color: var(--text); }
+dialog::backdrop { background: rgba(10, 14, 20, 0.55); }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); }
 .modal-head h2 { margin: 0; font-size: 16px; }
-.modal-head .icon-btn { color: var(--head-ink); }
-form { padding: var(--sp-4); display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
-.field { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; }
+form { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px var(--gap); }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .field.full { grid-column: 1 / -1; }
-.field label { font-weight: 700; font-size: 12px; }
-.req { color: var(--crit); }
-.field .error { color: var(--crit); font-size: 12px; }
-.field.invalid input, .field.invalid textarea, .field.invalid select { border-color: var(--crit); background: var(--crit-bg); }
-.hint { font-size: 11px; color: var(--ink-2); }
-.form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: var(--sp-2); padding-top: var(--sp-2); border-top: 1px solid var(--line); }
+.field label { font-size: 13px; font-weight: 500; }
+.req { color: var(--negative); }
+.hint { font-size: 13px; color: var(--muted); }
+.error { font-size: 13px; color: var(--negative); }
+.field.invalid input, .field.invalid select, .field.invalid textarea { border-color: var(--negative); }
+.privacy { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--muted); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); }
 
-/* ===== Toasts ===== */
-.wa-widget { position: fixed; right: var(--sp-4); bottom: var(--sp-4); z-index: 9; display: flex; align-items: center; gap: var(--sp-2); background: #1fa855; color: #ffffff; text-decoration: none; font-weight: 700; padding: var(--sp-3) var(--sp-4); border-radius: 999px; box-shadow: var(--shadow-lift); transition: background 0.15s, transform 0.15s; }
-.wa-widget:hover { background: #178a45; transform: translateY(-2px); }
+/* ===== WhatsApp widget and toasts ===== */
+.wa-widget { position: fixed; right: 16px; bottom: 16px; z-index: 9; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px 0 12px; border-radius: 999px; background: var(--data); color: #0b0615; text-decoration: none; font-weight: 700; box-shadow: var(--glow-purple); }
+.wa-widget:hover { background: #c47bff; }
 .wa-widget svg { width: 22px; height: 22px; flex: none; }
-.toasts { position: fixed; right: var(--sp-4); bottom: calc(var(--sp-4) + 64px); display: flex; flex-direction: column; gap: var(--sp-2); z-index: 10; max-width: 340px; }
-.toast { padding: var(--sp-3) var(--sp-4); border-radius: var(--radius); color: #ffffff; background: var(--st-done); box-shadow: var(--shadow-lift); font-weight: 600; }
+.toasts { position: fixed; right: 16px; bottom: 72px; z-index: 10; display: flex; flex-direction: column; gap: 8px; max-width: 340px; }
+.toast { padding: 10px 14px; border-radius: var(--radius-control); background: var(--accent); color: var(--accent-ink); font-weight: 500; box-shadow: var(--glow-lemon); }
 .toast.warn { background: var(--high); color: #1d1300; }
 
-/* ===== Responsive ===== */
+/* ===== Phone ===== */
+@media (max-width: 1023px) {
+  .kpis { grid-template-columns: repeat(3, 1fr); }
+  .kpis li:nth-child(4) { border-left: none; }
+  .kpis li:nth-child(n+4) { border-top: 1px solid var(--rule); }
+}
 @media (max-width: 767px) {
-  .board { grid-template-columns: 1fr; padding: var(--sp-3); }
-  .app-header, .filters { padding-left: var(--sp-4); padding-right: var(--sp-4); }
-  .summary li { padding: 0 var(--sp-3); }
-  .note { margin-left: 0; max-width: none; }
-  .filters input, .filters select { min-width: 140px; }
+  :root { --pad: 16px; }
+  .board { grid-template-columns: 1fr; }
+  .scope, .demo-note { display: none; }
+  .title-row { padding-top: 20px; }
+  .filters input, .filters select { min-width: 0; width: 100%; }
+  .filters label { flex: 1 1 100%; }
+  .kpi-value { font-size: 26px; }
+  .kpis li { padding: 14px 16px; }
   form { grid-template-columns: 1fr; }
+  .toasts { left: 16px; max-width: none; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .card, .column, .btn { transition: none; }
-  .card:hover { transform: none; }
-}
+@media (prefers-reduced-motion: reduce) { * { transition: none; } }
 </style>
 </head>
 <body>
 
-<header class="app-header">
-  <div class="wordmark">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="4" fill="#1a65b3"/><path d="M7 7h10M7 12h10M7 17h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
-    <span>IT PMO</span><small>Internal demo / training tool</small>
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="5" height="18" rx="1.5" fill="currentColor"/><rect x="9.5" y="3" width="5" height="12" rx="1.5" fill="currentColor"/><rect x="17" y="3" width="5" height="7" rx="1.5" fill="var(--data)"/></svg>
+      <span>IT PMO</span>
+      <span class="scope">All workstreams</span>
+    </div>
+    <span class="demo-note">Demo data in memory only. Refreshing resets the board.</span>
   </div>
-  <ul class="summary" id="summary" aria-label="Board summary"></ul>
-  <button class="btn" type="button" id="open-add">+ Add Task</button>
 </header>
 
-<section class="filters" aria-label="Board filters">
-  <label for="f-project">Project
-    <select id="f-project"></select>
-  </label>
-  <label for="f-assignee">Assignee contains
-    <input type="text" id="f-assignee" placeholder="e.g. Tan">
-  </label>
-  <label for="f-priority">Priority
-    <select id="f-priority"></select>
-  </label>
-  <button class="btn btn-secondary" type="button" id="clear-filters">Clear filters</button>
-  <p class="note">Demo data is held in memory only — refreshing the page resets the board.</p>
-</section>
+<main class="wrap">
+  <section class="title-row" aria-labelledby="page-title">
+    <div>
+      <h1 id="page-title">Project board</h1>
+      <p class="finding" id="finding"></p>
+    </div>
+    <button class="btn" type="button" id="open-add">+ Add Task</button>
+  </section>
 
-<main>
+  <section aria-label="Board summary">
+    <ul class="kpis" id="kpis"></ul>
+    <div class="progress" id="progress"></div>
+  </section>
+
+  <section class="filters" aria-label="Board filters">
+    <label for="f-project">Project
+      <select id="f-project"></select>
+    </label>
+    <label for="f-assignee">Assignee
+      <input type="text" id="f-assignee" placeholder="Name contains" autocomplete="off">
+    </label>
+    <label for="f-priority">Priority
+      <select id="f-priority"></select>
+    </label>
+    <button class="btn btn-secondary" type="button" id="clear-filters">Clear filters</button>
+  </section>
+
   <section class="board" id="board" aria-label="Kanban board"></section>
 </main>
 
 <dialog id="add-dialog" aria-labelledby="add-title">
   <div class="modal-head">
-    <h2 id="add-title">Add Task</h2>
+    <h2 id="add-title">Add task</h2>
     <button class="icon-btn" type="button" id="close-add" aria-label="Close add task form">&times;</button>
   </div>
-  <form id="task-form" novalidate>
+  <form id="task-form" novalidate autocomplete="off">
     <div class="field full">
-      <label for="t-title">Task Title <span class="req">*</span></label>
-      <input type="text" id="t-title" name="title" maxlength="80" autocomplete="off">
+      <label for="t-title">Task title <span class="req">*</span></label>
+      <input type="text" id="t-title" name="title" maxlength="80">
       <span class="error" id="e-title" role="alert"></span>
     </div>
     <div class="field full">
@@ -233,7 +281,7 @@ form { padding: var(--sp-4); display: grid; grid-template-columns: 1fr 1fr; gap:
       <span class="error" id="e-description" role="alert"></span>
     </div>
     <div class="field">
-      <label for="t-project">Project / Workstream <span class="req">*</span></label>
+      <label for="t-project">Project / workstream <span class="req">*</span></label>
       <select id="t-project" name="project"></select>
       <span class="error" id="e-project" role="alert"></span>
     </div>
@@ -244,7 +292,7 @@ form { padding: var(--sp-4); display: grid; grid-template-columns: 1fr 1fr; gap:
     </div>
     <div class="field">
       <label for="t-assignee">Assignee <span class="req">*</span></label>
-      <input type="text" id="t-assignee" name="assignee" autocomplete="off">
+      <input type="text" id="t-assignee" name="assignee" maxlength="60">
       <span class="error" id="e-assignee" role="alert"></span>
     </div>
     <div class="field">
@@ -252,7 +300,7 @@ form { padding: var(--sp-4); display: grid; grid-template-columns: 1fr 1fr; gap:
       <select id="t-priority" name="priority"></select>
     </div>
     <div class="field">
-      <label for="t-due">Due Date <span class="req">*</span></label>
+      <label for="t-due">Due date <span class="req">*</span></label>
       <input type="date" id="t-due" name="dueDate">
       <span class="error" id="e-dueDate" role="alert"></span>
     </div>
@@ -260,22 +308,24 @@ form { padding: var(--sp-4); display: grid; grid-template-columns: 1fr 1fr; gap:
       <label for="t-status">Status</label>
       <select id="t-status" name="status"></select>
     </div>
+    <div class="hp" aria-hidden="true"><label for="t-website">Website</label><input type="text" id="t-website" name="website" tabindex="-1" autocomplete="off"></div>
+    <p class="privacy">Adding a task emails its details to the PMO mailbox through FormSubmit. Do not enter customer data, account numbers or credentials.</p>
     <div class="form-actions">
       <button class="btn btn-secondary" type="button" id="cancel-add">Cancel</button>
-      <button class="btn" type="submit" id="submit-btn">Add Task</button>
+      <button class="btn" type="submit" id="submit-btn">Add task</button>
     </div>
   </form>
 </dialog>
 
 <a class="wa-widget" id="wa-widget" href="#" target="_blank" rel="noopener noreferrer" aria-label="Chat with the PMO team on WhatsApp (opens in a new tab)">
-  <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.300 1.200-1.800 1.200-.5.1-1 .2-3.300-.7-2.800-1.100-4.600-4-4.700-4.200-.1-.2-1.100-1.500-1.100-2.800s.7-2 1-2.300c.2-.3.500-.3.700-.3h.5c.2 0 .4 0 .6.500l.8 2c.1.200.1.300 0 .500l-.4.600-.3.300c-.1.200-.3.300-.1.600.2.300.8 1.300 1.700 2.100 1.100 1 2.100 1.300 2.400 1.400.3.100.5.100.6-.1l.9-1.100c.2-.3.400-.2.600-.1l1.900.9c.3.100.5.200.5.300.1.200.1.700-.1 1.200z"/></svg>
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.6-.3.3c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.4.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.2z"/></svg>
   <span>Chat on WhatsApp</span>
 </a>
 
 <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
 
 <!--
-  CONFIG NOTE — FormSubmit activation:
+  CONFIG NOTE: FormSubmit activation.
   FormSubmit needs a one-time activation. The FIRST submission sent to a new email address
   triggers a confirmation email to that address. Submissions are only delivered after the
   link in that email has been clicked. Until then, requests may succeed but nothing is delivered.
@@ -284,9 +334,8 @@ form { padding: var(--sp-4); display: grid; grid-template-columns: 1fr 1fr; gap:
 "use strict";
 
 /* ===== CONFIG (edit here) ===== */
-const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/YOUR_EMAIL@example.com";
-
-// WhatsApp floating widget: country code + number, digits only (placeholder — replace before real use).
+const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/YOUR_EMAIL@example.com"; // taste-skill-ignore: intentional placeholder
+// WhatsApp floating widget: country code + number, digits only (placeholder: replace before real use).
 const WHATSAPP_NUMBER = "6500000000";
 const WHATSAPP_MESSAGE = "Hi IT PMO team, I have a question about the project board.";
 
@@ -295,6 +344,9 @@ const STATUSES = ["Backlog", "In Progress", "Blocked", "Done"];
 const PROJECTS = ["Core Banking Upgrade", "Digital Channels", "Cybersecurity Uplift", "Data & Analytics", "Infrastructure & Cloud", "Vendor Management"];
 const CATEGORIES = ["Application Development", "Infrastructure", "Cybersecurity", "Data", "Compliance", "Vendor"];
 const PRIORITIES = ["Critical", "High", "Medium", "Low"];
+const MAX_TASKS = 200;            // bounds memory use if the form is abused
+const REQUEST_TIMEOUT_MS = 10000; // a hung request must not keep the UI in "Sending…"
+const SUBMIT_COOLDOWN_MS = 3000;  // simple client-side throttle against rapid resubmits
 
 /* ===== Date helpers (local time, YYYY-MM-DD strings compare lexically) ===== */
 function toDateString(d) {
@@ -308,7 +360,26 @@ function dateOffset(days) {
   d.setDate(d.getDate() + days);
   return toDateString(d);
 }
+function daysFromToday(dateStr) {
+  const p = dateStr.split("-").map(Number);
+  const t = todayString().split("-").map(Number);
+  return Math.round((Date.UTC(p[0], p[1] - 1, p[2]) - Date.UTC(t[0], t[1] - 1, t[2])) / 86400000);
+}
 function isOverdue(task) { return task.status !== "Done" && task.dueDate < todayString(); }
+function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function shortDate(dateStr) {
+  const p = dateStr.split("-").map(Number);
+  return p[2] + " " + MONTHS[p[1] - 1];
+}
+function dueText(task) {
+  const s = shortDate(task.dueDate);
+  if (task.status === "Done") return s;
+  const d = daysFromToday(task.dueDate);
+  if (d < 0) return s + " · " + d * -1 + "d late";
+  if (d === 0) return s + " · today";
+  return s + " · in " + d + "d";
+}
 
 /* ===== State (single source of truth; in memory only) ===== */
 const state = {
@@ -351,11 +422,25 @@ function escapeHtml(value) {
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
+// Strip control characters from free text (newlines are kept for descriptions).
+function cleanText(value, keepNewlines) {
+  const re = keepNewlines ? /[\u0000-\u0009\u000b-\u001f\u007f]/g : /[\u0000-\u001f\u007f]/g;
+  return String(value).replace(re, "").trim();
+}
 function optionsHtml(list, placeholder) {
   const first = placeholder ? '<option value="">' + escapeHtml(placeholder) + "</option>" : "";
   return first + list.map(function (v) { return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + "</option>"; }).join("");
 }
 function slug(s) { return s.toLowerCase().replace(/[^a-z]+/g, "-"); }
+function initials(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+}
+function hueFor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
+  return h;
+}
 
 /* ===== Filtering ===== */
 function applyFilters(tasks) {
@@ -383,26 +468,54 @@ function renderCard(task) {
     '<div class="card-top"><span class="card-id">' + escapeHtml(task.id) + "</span>" +
     '<button type="button" class="icon-btn" data-action="delete-ask" data-id="' + escapeHtml(task.id) + '" aria-label="Delete task ' + escapeHtml(task.id) + '">&times;</button></div>' +
     '<h3 class="card-title">' + escapeHtml(task.title) + "</h3>" +
-    '<dl class="card-meta"><dt>Project</dt><dd>' + escapeHtml(task.project) + "</dd>" +
-    "<dt>Owner</dt><dd>" + escapeHtml(task.assignee) + "</dd>" +
-    "<dt>Due</dt><dd>" + escapeHtml(task.dueDate) + "</dd></dl>" +
+    '<p class="card-project">' + escapeHtml(task.project) + "</p>" +
     '<div class="badges"><span class="pill pill-' + slug(task.priority) + '">' + escapeHtml(task.priority) + "</span>" +
     '<span class="tag">' + escapeHtml(task.category) + "</span>" +
     (isOverdue(task) ? '<span class="overdue">Overdue</span>' : "") + "</div>" +
+    '<div class="card-foot"><div class="person"><span class="avatar" style="--h:' + hueFor(task.assignee) + '" aria-hidden="true">' + escapeHtml(initials(task.assignee)) + "</span><span>" + escapeHtml(task.assignee) + "</span></div>" +
+    '<div class="due' + (isOverdue(task) ? " is-late" : "") + '"><span class="visually-label">Due </span>' + escapeHtml(dueText(task)) + "</div></div>" +
     '<div class="card-actions">' + actions + "</div></article>";
 }
 
+// Summary: one-line finding, KPI strip and the closed-share bar, all computed from state.tasks.
 function renderSummary() {
-  const items = [["Total", state.tasks.length, ""]];
-  STATUSES.forEach(function (s) {
-    items.push([s, state.tasks.filter(function (t) { return t.status === s; }).length, ""]);
-  });
-  items.push(["Overdue", state.tasks.filter(isOverdue).length, "is-overdue"]);
-  document.getElementById("summary").innerHTML = items.map(function (i) {
-    return '<li class="' + i[2] + '"><strong>' + i[1] + "</strong><span>" + escapeHtml(i[0]) + "</span></li>";
-  }).join("");
-}
+  const tasks = state.tasks;
+  const counts = {};
+  STATUSES.forEach(function (s) { counts[s] = tasks.filter(function (t) { return t.status === s; }).length; });
+  const overdue = tasks.filter(isOverdue);
 
+  const cells = [["Total tasks", tasks.length, ""]];
+  STATUSES.forEach(function (s) { cells.push([s, counts[s], s === "Blocked" && counts[s] > 0 ? "is-bad" : ""]); });
+  cells.push(["Overdue", overdue.length, overdue.length > 0 ? "is-bad" : ""]);
+  document.getElementById("kpis").innerHTML = cells.map(function (c) {
+    const cls = "kpi-value" + (c[2] ? " " + c[2] : "") + (c[1] === 0 ? " is-zero" : "");
+    return '<li><span class="kpi-label">' + escapeHtml(c[0]) + '</span><span class="' + cls + '">' + c[1] + "</span></li>";
+  }).join("");
+
+  const finding = document.getElementById("finding");
+  if (!tasks.length) {
+    finding.textContent = "No tasks on the board yet.";
+  } else if (!overdue.length) {
+    finding.textContent = "Nothing is overdue. " + plural(counts["Blocked"], "task") + " blocked.";
+  } else {
+    const worst = overdue.slice().sort(function (a, b) { return a.dueDate < b.dueDate ? -1 : 1; })[0];
+    finding.innerHTML = "<strong>" + plural(overdue.length, "task") + " overdue</strong> and " + counts["Blocked"] + " blocked. " +
+      escapeHtml(worst.title) + " is " + plural(-daysFromToday(worst.dueDate), "day") + " past its due date.";
+  }
+
+  const total = tasks.length;
+  const pct = total ? (counts["Done"] / total) * 100 : 0;
+  const segs = STATUSES.filter(function (s) { return counts[s] > 0; }).map(function (s) {
+    return '<span class="seg seg-' + slug(s) + '" style="flex-grow:' + counts[s] + '" title="' + escapeHtml(s) + ": " + counts[s] + '"></span>';
+  }).join("");
+  const legend = STATUSES.map(function (s) {
+    return '<li><span class="key key-' + slug(s) + '" aria-hidden="true"></span>' + escapeHtml(s) + ' <span class="num">' + counts[s] + "</span></li>";
+  }).join("");
+  document.getElementById("progress").innerHTML =
+    '<div class="progress-head"><span>Pipeline</span><span class="num"><strong>' + counts["Done"] + " of " + total + " tasks closed</strong> · " + pct.toFixed(1) + "%</span></div>" +
+    '<div class="led" role="img" aria-label="Tasks by status: ' + STATUSES.map(function (s) { return counts[s] + " " + s; }).join(", ") + '">' + (segs || '<span class="seg seg-empty" style="flex-grow:1"></span>') + "</div>" +
+    '<ul class="legend">' + legend + "</ul>";
+}
 function renderBoard() {
   const visible = applyFilters(state.tasks);
   const focusId = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.id : null;
@@ -410,8 +523,8 @@ function renderBoard() {
   document.getElementById("board").innerHTML = STATUSES.map(function (status) {
     const cards = visible.filter(function (t) { return t.status === status; });
     return '<section class="column" data-status="' + escapeHtml(status) + '" aria-label="' + escapeHtml(status) + ' column">' +
-      '<div class="column-header"><h2>' + escapeHtml(status) + '</h2><span class="count" aria-label="' + cards.length + ' tasks">' + cards.length + "</span></div>" +
-      '<div class="cards">' + (cards.length ? cards.map(renderCard).join("") : '<div class="empty">No tasks</div>') + "</div></section>";
+      '<div class="column-header"><span class="dot" aria-hidden="true"></span><h2>' + escapeHtml(status) + '</h2><span class="count" aria-label="' + cards.length + ' tasks">' + cards.length + "</span></div>" +
+      '<div class="cards">' + (cards.length ? cards.map(renderCard).join("") : '<div class="empty">No tasks here.</div>') + "</div></section>";
   }).join("");
   renderSummary();
   // Restore keyboard focus after a re-render
@@ -451,31 +564,41 @@ function showToast(message, kind) {
 
 /* ===== FormSubmit notification ===== */
 async function notifyNewTask(task) {
-  const res = await fetch(FORMSUBMIT_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({
-      _subject: `[UOB IT PMO] New task ${task.id}: ${task.title}`,
-      _template: "table",
-      _captcha: "false",
-      "Task ID": task.id,
-      Title: task.title,
-      Description: task.description,
-      Project: task.project,
-      Category: task.category,
-      Assignee: task.assignee,
-      Priority: task.priority,
-      "Due Date": task.dueDate,
-      Status: task.status,
-      "Submitted At": new Date().toISOString()
-    })
-  });
-  if (!res.ok) throw new Error(`FormSubmit failed: ${res.status}`);
-  return res.json();
+  const ctrl = new AbortController();
+  const timer = setTimeout(function () { ctrl.abort(); }, REQUEST_TIMEOUT_MS);
+  try {
+    const res = await fetch(FORMSUBMIT_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      referrerPolicy: "no-referrer",
+      signal: ctrl.signal,
+      body: JSON.stringify({
+        _subject: `[UOB IT PMO] New task ${task.id}: ${task.title}`,
+        _template: "table",
+        _captcha: "false",
+        _honey: "",
+        "Task ID": task.id,
+        Title: task.title,
+        Description: task.description,
+        Project: task.project,
+        Category: task.category,
+        Assignee: task.assignee,
+        Priority: task.priority,
+        "Due Date": task.dueDate,
+        Status: task.status,
+        "Submitted At": new Date().toISOString()
+      })
+    });
+    if (!res.ok) throw new Error(`FormSubmit failed: ${res.status}`);
+    return res.json();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /* ===== Form: validation and submit ===== */
 const form = document.getElementById("task-form");
+let lastSubmitAt = 0;
 
 function setError(field, message) {
   const err = document.getElementById("e-" + field);
@@ -484,42 +607,47 @@ function setError(field, message) {
   err.closest(".field").classList.toggle("invalid", !!message);
 }
 
+// Every value is checked against an allowlist or length limit; the form's own attributes are never trusted.
 function validateForm(values) {
   const errors = {};
-  if (!values.title.trim()) errors.title = "Task title is required.";
+  if (!values.title) errors.title = "Task title is required.";
   else if (values.title.length > 80) errors.title = "Title must be 80 characters or fewer.";
   if (values.description.length > 500) errors.description = "Description must be 500 characters or fewer.";
   if (PROJECTS.indexOf(values.project) === -1) errors.project = "Choose a project.";
   if (CATEGORIES.indexOf(values.category) === -1) errors.category = "Choose a category.";
-  if (!values.assignee.trim()) errors.assignee = "Assignee is required.";
-  if (!values.dueDate) errors.dueDate = "Due date is required.";
+  if (!values.assignee) errors.assignee = "Assignee is required.";
+  else if (values.assignee.length > 60) errors.assignee = "Assignee must be 60 characters or fewer.";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(values.dueDate)) errors.dueDate = "Due date is required.";
   else if (values.dueDate < todayString()) errors.dueDate = "Due date cannot be in the past.";
+  if (PRIORITIES.indexOf(values.priority) === -1) errors.priority = "Choose a priority.";
+  if (STATUSES.indexOf(values.status) === -1) errors.status = "Choose a status.";
   return errors;
 }
 
 function readForm() {
   const g = function (id) { return document.getElementById(id).value; };
   return {
-    title: g("t-title"), description: g("t-description"), project: g("t-project"),
-    category: g("t-category"), assignee: g("t-assignee"), priority: g("t-priority"),
+    title: cleanText(g("t-title")), description: cleanText(g("t-description"), true), project: g("t-project"),
+    category: g("t-category"), assignee: cleanText(g("t-assignee")), priority: g("t-priority"),
     dueDate: g("t-due"), status: g("t-status")
   };
 }
 
 async function handleSubmit(event) {
   event.preventDefault();
+  if (document.getElementById("t-website").value) return;            // honeypot filled: silently drop
+  if (Date.now() - lastSubmitAt < SUBMIT_COOLDOWN_MS) return;        // throttle
+  if (state.tasks.length >= MAX_TASKS) { showToast("Board is full. Delete a task first.", "warn"); return; }
   const values = readForm();
   const errors = validateForm(values);
   ["title", "description", "project", "category", "assignee", "dueDate"].forEach(function (f) { setError(f, errors[f] || ""); });
   const firstBad = Object.keys(errors)[0];
   if (firstBad) {
-    const map = { title: "t-title", description: "t-description", project: "t-project", category: "t-category", assignee: "t-assignee", dueDate: "t-due" };
+    const map = { title: "t-title", description: "t-description", project: "t-project", category: "t-category", assignee: "t-assignee", dueDate: "t-due", priority: "t-priority", status: "t-status" };
     document.getElementById(map[firstBad]).focus();
     return;
   }
-  values.title = values.title.trim();
-  values.assignee = values.assignee.trim();
-  values.description = values.description.trim();
+  lastSubmitAt = Date.now();
 
   const btn = document.getElementById("submit-btn");
   btn.disabled = true;
@@ -537,7 +665,7 @@ async function handleSubmit(event) {
     showToast("Card added locally — email notification failed", "warn");
   } finally {
     btn.disabled = false;
-    btn.textContent = "Add Task";
+    btn.textContent = "Add task";
   }
 }
 
@@ -636,7 +764,11 @@ function init() {
   document.getElementById("t-category").innerHTML = optionsHtml(CATEGORIES, "Select category…");
   document.getElementById("t-priority").innerHTML = optionsHtml(PRIORITIES);
   document.getElementById("t-status").innerHTML = optionsHtml(STATUSES);
-  document.getElementById("wa-widget").href = "https://wa.me/" + encodeURIComponent(WHATSAPP_NUMBER) + "?text=" + encodeURIComponent(WHATSAPP_MESSAGE);
+  if (/^\d{6,15}$/.test(WHATSAPP_NUMBER)) {
+    document.getElementById("wa-widget").href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(WHATSAPP_MESSAGE);
+  } else {
+    document.getElementById("wa-widget").hidden = true;
+  }
   seedTasks();
   wireEvents();
   renderBoard();
